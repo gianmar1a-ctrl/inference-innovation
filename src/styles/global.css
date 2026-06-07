@@ -65,9 +65,14 @@
     color-scheme: dark;
   }
 
-  /* Push hash-anchor sections below the fixed nav (68px) + breathing room */
+  /* Body starts below the fixed nav (68px tall) */
+  body {
+    padding-top: 68px;
+  }
+
+  /* Extra breathing room when scrolling to hash anchors */
   section[id] {
-    scroll-margin-top: 80px;
+    scroll-margin-top: 16px;
   }
 
   body {
