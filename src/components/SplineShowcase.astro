@@ -1,0 +1,49 @@
+---
+import { SplineScene } from './ui/splite';
+import { Card } from './ui/card';
+import { Spotlight } from './ui/spotlight';
+---
+<section class="relative py-28 sm:py-36 border-t border-[var(--color-rule)]">
+  <div class="container-page">
+    <div class="section-grid">
+      <aside class="rail mb-4 lg:mb-0 reveal">
+        <div class="section-num">§&nbsp;07</div>
+        <div class="hidden lg:block w-px h-12 bg-[var(--color-rule-strong)] mt-3 ml-[0.45rem]" aria-hidden="true"></div>
+      </aside>
+
+      <div class="body reveal">
+        <div class="eyebrow">Platform</div>
+        <h2 class="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.02] max-w-[22ch]">
+          Inference in <em class="text-[var(--color-signal)]">three dimensions.</em>
+        </h2>
+
+        <div class="mt-10 w-full h-[500px] rounded-lg border border-[var(--color-rule)] bg-[var(--color-surface)] relative overflow-hidden">
+          <Spotlight
+            client:load
+            className="-top-40 left-0 md:left-60 md:-top-20"
+            fill="#3f8cff"
+          />
+
+          <div class="flex h-full">
+            <div class="flex-1 p-8 relative z-10 flex flex-col justify-center">
+              <h3 class="text-3xl md:text-4xl font-light text-[var(--color-paper)]" style="font-family: var(--font-display); letter-spacing: -0.025em;">
+                Interactive 3D
+              </h3>
+              <p class="mt-4 text-[var(--color-mute)] max-w-xs leading-[1.7] text-[0.95rem]">
+                Bring your inference pipeline to life. Visualise data flows, decision loops, and model architecture in real time.
+              </p>
+            </div>
+
+            <div class="flex-1 relative">
+              <SplineScene
+                client:load
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="w-full h-full"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

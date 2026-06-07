@@ -1,0 +1,115 @@
+---
+import TeamCard from './TeamCard.astro';
+
+const core = [
+  {
+    name: 'Kevin Paul',
+    role: 'Founder & Chief Applied AI Engineer',
+    bio: 'Civil and mechanical engineer, Harvard executive alumnus, with three decades scaling engineering-led technology businesses — including a founding-CEO turn at Kentz Technologies. Sets the applied-AI and inference strategy.',
+    photo: '/images/team/kevin-paul.jpg',
+  },
+  {
+    name: 'Ian McCullagh',
+    role: 'Head of AI Onboarding & Operations Enablement',
+    bio: 'Senior operational leadership in mission-critical communications and secure infrastructure at Motorola Solutions. Turns high-reliability systems into scalable operating platforms; owns client onboarding and execution readiness.',
+    photo: '/images/team/ian-mccullagh.jpg',
+  },
+  {
+    name: 'Matthew Gallagher',
+    role: 'Head of Compliance',
+    bio: 'Fourteen-plus years across research and regulatory compliance, including four at HMRC on the R&D tax-relief team. Now keeps every program inside the scientific, regulatory, and governance lines.',
+    photo: '/images/team/matthew-gallagher.jpg',
+  },
+  {
+    name: 'Pat Gayer',
+    role: 'Head of Physical AI & PhyAI Integration',
+    bio: 'Full-stack engineer spanning automation, robotics, manufacturing, and business operations. Prepares physical environments for autonomy — typically unlocking 20–40% operational improvement before any robotics investment.',
+    photo: '/images/team/pat-gayer.jpg',
+  },
+  {
+    name: 'Simon Edmondson',
+    role: 'Head of Data Migration & Security Engineering',
+    bio: 'Leads the secure movement, transformation, and governance of enterprise data underneath inference systems. Owns data integrity and lineage through legacy-to-AI transitions.',
+    photo: '/images/team/simon-edmondson.jpg',
+  },
+];
+
+const horizon = [
+  { name: 'Name to be confirmed', role: 'Title to be confirmed', photo: '/images/team/horizon-1.jpg', tbd: true },
+  { name: 'Name to be confirmed', role: 'Title to be confirmed', photo: '/images/team/horizon-2.jpg', tbd: true },
+  { name: 'Name to be confirmed', role: 'Title to be confirmed', tbd: true, initials: 'HL' },
+];
+---
+<section id="team" class="relative py-28 sm:py-36 border-t border-[var(--color-rule)]">
+  <div class="container-page">
+    <div class="section-grid">
+      <aside class="rail mb-4 lg:mb-0 reveal">
+        <div class="section-num float-y">§&nbsp;05</div>
+        <div class="hidden lg:block w-px h-12 bg-[var(--color-rule-strong)] mt-3 ml-[0.45rem]" aria-hidden="true"></div>
+      </aside>
+
+      <header class="body reveal">
+        <div class="eyebrow">Research Team</div>
+        <h2 class="mt-5 text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.02] max-w-[20ch]">
+          The people behind the <em class="text-[var(--color-signal)]">inference.</em>
+        </h2>
+        <p class="mt-8 text-[var(--color-paper)]/85 text-[1.0625rem] leading-[1.7] max-w-[62ch]">
+          Engineers, regulators, and data specialists — distributed across Europe and a new APAC node in China. Every member carries operational ownership of a specific slice of the inference cycle.
+        </p>
+      </header>
+
+      <aside class="margin hidden lg:block reveal mt-1">
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--color-rule-strong)]">— Roster —</div>
+        <p class="mt-3 font-mono text-[0.74rem] uppercase tracking-[0.16em] text-[var(--color-mute)] leading-[1.7]">
+          Core · {core.length}<br/>
+          Horizon · {horizon.length}<br/>
+          Total · {core.length + horizon.length}
+        </p>
+      </aside>
+    </div>
+
+    <!-- Core team -->
+    <div class="mt-20 flex items-baseline justify-between reveal">
+      <div class="eyebrow signal-eyebrow inline-flex items-center gap-3">
+        <span class="signal-dot" aria-hidden="true"></span>
+        Core Team · Europe
+      </div>
+      <span class="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">{core.length} members</span>
+    </div>
+
+    <div class="mt-5 rule-tick" aria-hidden="true"></div>
+
+    <ul class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12">
+      {core.map((m, i) => (
+        <li class="flex flex-col stagger-reveal" style={`--stagger: ${i}`}><TeamCard {...m} group="CORE" index={i + 1} /></li>
+      ))}
+    </ul>
+
+    <!-- Horizon Lab -->
+    <div class="mt-24 reveal">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+        <div>
+          <div class="eyebrow signal-eyebrow inline-flex items-center gap-3">
+            <span class="signal-dot" aria-hidden="true"></span>
+            Horizon Lab · China
+          </div>
+          <h3 class="mt-5 text-[1.875rem] leading-[1.04] max-w-[24ch]" style="font-variation-settings: 'opsz' 48, 'wght' 440;">
+            Our new APAC node — onboarding now.
+          </h3>
+          <p class="mt-4 max-w-[58ch] text-[0.95rem] text-[var(--color-mute)] leading-[1.65]">
+            Horizon Lab extends the network into APAC time-zones. Three members are joining; their full profiles will appear here as they're confirmed.
+          </p>
+        </div>
+        <span class="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-mute)] shrink-0">{horizon.length} members · placeholders shown</span>
+      </div>
+    </div>
+
+    <div class="mt-8 rule-tick" aria-hidden="true"></div>
+
+    <ul class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12">
+      {horizon.map((m, i) => (
+        <li class="stagger-reveal" style={`--stagger: ${i}`}><TeamCard {...m} group="HORIZON" index={i + 1} /></li>
+      ))}
+    </ul>
+  </div>
+</section>

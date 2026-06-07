@@ -1,0 +1,66 @@
+---
+const research = [
+  ['Baumol\'s Cost Disease', '#challenge'],
+  ['Post-Baumol Framework', '#framework'],
+  ['Applied AI Programs', '#programs'],
+  ['Research Papers', '#engage'],
+];
+const connect = [
+  ['Contact', 'mailto:contact@inferenceinnovation.ai'],
+  ['LinkedIn', '#'],
+  ['Publications', '#'],
+  ['Careers', '#'],
+];
+---
+<footer class="relative border-t border-[var(--color-rule)] pt-20 pb-10 lg:pb-32">
+  <div class="container-page">
+    <div class="rule-tick" aria-hidden="true"></div>
+
+    <div class="mt-12 grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div class="lg:col-span-4 reveal">
+        <a href="#top" class="inline-flex items-center gap-3" aria-label="Inference Innovation home">
+          <img
+            src="/iii-mark.svg"
+            alt=""
+            width="64"
+            height="64"
+            class="h-10 w-auto"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="font-mono text-[0.74rem] uppercase tracking-[0.18em] text-[var(--color-paper)]">
+            Inference&nbsp;<span class="text-[var(--color-mute)]">/</span>&nbsp;Innovation
+          </span>
+        </a>
+        <p class="mt-6 max-w-[42ch] text-[0.9rem] text-[var(--color-mute)] leading-[1.7]">
+          Building native Applied AI and human-amplification capability inside construction, manufacturing, and heavy industry — under Frascati and Oslo Manual discipline.
+        </p>
+      </div>
+
+      <div class="lg:col-span-3 lg:col-start-6 reveal">
+        <div class="eyebrow signal-eyebrow">Research</div>
+        <div class="mt-3 rule-tick" aria-hidden="true"></div>
+        <ul class="mt-5 space-y-3 font-mono text-[0.82rem] uppercase tracking-[0.06em]">
+          {research.map(([l, h]) => (
+            <li><a href={h} class="hover:text-[var(--color-signal)] hover:underline underline-offset-4 decoration-[var(--color-signal)]/40 transition-colors duration-200">{l}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="lg:col-span-3 lg:col-start-10 reveal">
+        <div class="eyebrow signal-eyebrow">Connect</div>
+        <div class="mt-3 rule-tick" aria-hidden="true"></div>
+        <ul class="mt-5 space-y-3 font-mono text-[0.82rem] uppercase tracking-[0.06em]">
+          {connect.map(([l, h]) => (
+            <li><a href={h} class="hover:text-[var(--color-signal)] hover:underline underline-offset-4 decoration-[var(--color-signal)]/40 transition-colors duration-200">{l}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono text-[0.66rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">
+      <p>© 2026 Inference Innovation. All rights reserved.</p>
+      <p>End&nbsp;of&nbsp;document&nbsp;<span class="text-[var(--color-signal)]" aria-hidden="true">■</span></p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,69 @@
+---
+const directLines = [
+  ['Email', 'contact@inferenceinnovation.ai', 'mailto:contact@inferenceinnovation.ai'],
+  ['Geography', 'Europe-primary · client-driven globally', null],
+  ['Powered by', 'A.Ri Decision Intelligence Platform', null],
+];
+---
+<section id="engage" class="relative py-28 sm:py-36 border-t border-[var(--color-rule)]">
+  <div class="container-page">
+    <div class="section-grid">
+      <aside class="rail mb-4 lg:mb-0 reveal">
+        <div class="section-num">§&nbsp;06</div>
+        <div class="hidden lg:block w-px h-12 bg-[var(--color-rule-strong)] mt-3 ml-[0.45rem]" aria-hidden="true"></div>
+      </aside>
+
+      <div class="body reveal">
+        <div class="eyebrow">Engage</div>
+        <h2 class="mt-5 text-[clamp(2.25rem,5.5vw,4.25rem)] leading-[1.02] max-w-[18ch]">
+          Ready to build <em class="text-[var(--color-signal)]">Post-Baumol</em> capabilities?
+        </h2>
+        <p class="mt-8 max-w-[62ch] text-[1.0625rem] leading-[1.7] text-[var(--color-paper)]/85">
+          A strategic review takes roughly six weeks. We assess your organisation's readiness for Applied AI, identify the highest-leverage inference loop in your operation, and scope a Frascati-compliant program from there.
+        </p>
+
+        <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-[0.74rem] uppercase tracking-[0.18em]">
+          <a
+            href="mailto:contact@inferenceinnovation.ai?subject=Strategic%20Review%20Request"
+            class="group inline-flex items-center gap-2 text-[var(--color-ink)] bg-[var(--color-signal)] px-5 py-3 hover:bg-[var(--color-paper)] transition-colors duration-200"
+          >
+            <span aria-hidden="true" class="opacity-50">[</span>
+            <span>Request Strategic Review</span>
+            <span aria-hidden="true">→</span>
+            <span aria-hidden="true" class="opacity-50">]</span>
+          </a>
+          <a
+            href="#"
+            class="group inline-flex items-center gap-2 px-5 py-3 border border-[var(--color-rule)] text-[var(--color-paper)] hover:border-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
+          >
+            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
+            <span>Download Research Paper</span>
+            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">↓</span>
+            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="margin lg:block mt-10 lg:mt-1 reveal">
+        <div class="corner-tick border border-[var(--color-rule)] p-6 bg-[var(--color-surface)]">
+          <div class="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-[var(--color-signal)]">Direct Lines</div>
+          <div class="mt-2 rule-tick" aria-hidden="true"></div>
+          <dl class="mt-5 space-y-5 text-[0.9rem]">
+            {directLines.map(([label, value, href]) => (
+              <div>
+                <dt class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">{label}</dt>
+                <dd class="mt-1.5 font-mono text-[0.85rem] leading-[1.45] break-words">
+                  {href ? (
+                    <a href={href as string} class="text-[var(--color-paper)] hover:text-[var(--color-signal)] hover:underline underline-offset-4 decoration-[var(--color-signal)]/40 transition-colors duration-200">{value}</a>
+                  ) : (
+                    <span>{value}</span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

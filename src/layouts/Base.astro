@@ -1,0 +1,170 @@
+---
+import '../styles/global.css';
+import { BeamsBackground } from '../components/ui/beams-background';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Inference Innovation — Industrial Transformation to 2030',
+  description = 'Applied AI and human amplification for construction, manufacturing, and heavy industry. Frascati-compliant R&D&I programs that resolve the half-century productivity stall.',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://www.inferenceinnovation.ai').toString();
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Inference Innovation',
+  url: 'https://www.inferenceinnovation.ai',
+  description,
+  sameAs: ['https://www.linkedin.com/'],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#08090c" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Inference Innovation" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(orgLd)} />
+    <!-- Must run before first paint so the browser never restores a saved scroll position -->
+    <script is:inline>
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <BeamsBackground client:load intensity="subtle" fixed={true} />
+    <slot />
+
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.14, rootMargin: '0px 0px -8% 0px' }
+      );
+
+      // Set word-reveal stagger delays before anything becomes visible
+      document.querySelectorAll('.word-reveal').forEach((host) => {
+        host.querySelectorAll('span').forEach((s, i) => {
+          (s as HTMLElement).style.transitionDelay = `${i * 40}ms`;
+        });
+      });
+
+      // For elements already in the viewport on load: show instantly (no transition flash).
+      // For below-fold elements: use IntersectionObserver for scroll-in animation.
+      document.querySelectorAll('.reveal, .reveal-up, .word-reveal').forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (inViewport) {
+          // Kill all transitions on host + word-reveal child spans so they appear instantly
+          (el as HTMLElement).style.transition = 'none';
+          (el as HTMLElement).style.transitionDelay = '0s';
+          el.querySelectorAll('span').forEach((s) => {
+            (s as HTMLElement).style.transition = 'none';
+            (s as HTMLElement).style.transitionDelay = '0s';
+          });
+          el.classList.add('is-in');
+        } else {
+          io.observe(el);
+        }
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-countup]').forEach((el) => {
+        const target = parseFloat(el.dataset.countup || '0');
+        const suffix = el.dataset.suffix || '';
+        const decimals = parseInt(el.dataset.decimals || '0', 10);
+        const ob = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const start = performance.now();
+              const dur = 900;
+              const tick = (now: number) => {
+                const t = Math.min(1, (now - start) / dur);
+                const eased = 1 - Math.pow(1 - t, 3);
+                const v = (target * eased).toFixed(decimals);
+                el.textContent = v + suffix;
+                if (t < 1) requestAnimationFrame(tick);
+              };
+              if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                el.textContent = target.toFixed(decimals) + suffix;
+              } else {
+                requestAnimationFrame(tick);
+              }
+              ob.unobserve(el);
+            }
+          },
+          { threshold: 0.6 }
+        );
+        ob.observe(el);
+      });
+
+      // ── Scroll progress bar ──────────────────────────────────────────────
+      const progressBar = document.createElement('div');
+      progressBar.className = 'scroll-progress';
+      document.body.prepend(progressBar);
+      window.addEventListener('scroll', () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progressBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+      }, { passive: true });
+
+      // ── Active nav section ───────────────────────────────────────────────
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const navAnchors = document.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]');
+        const sectionIds = ['challenge','framework','network','programs','team','engage'];
+        const navSectionObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              navAnchors.forEach((a) => {
+                a.classList.toggle('nav-active', a.getAttribute('href') === '#' + id);
+              });
+            }
+          });
+        }, { threshold: 0.25, rootMargin: '-5% 0px -60% 0px' });
+        sectionIds.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) navSectionObserver.observe(el);
+        });
+      }
+
+      // ── Card highlight on hover (adds .card-highlighted class) ─────────
+      document.querySelectorAll<HTMLElement>('.signal-glow').forEach((card) => {
+        card.addEventListener('mouseenter', () => card.classList.add('card-highlighted'));
+        card.addEventListener('mouseleave', () => card.classList.remove('card-highlighted'));
+      });
+    </script>
+  </body>
+</html>

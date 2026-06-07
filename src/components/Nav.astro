@@ -1,0 +1,74 @@
+---
+const links = [
+  { href: '#challenge', label: 'Challenge' },
+  { href: '#framework', label: 'Framework' },
+  { href: '#network', label: 'Network' },
+  { href: '#programs', label: 'Programs' },
+  { href: '#team', label: 'Team' },
+  { href: '#engage', label: 'Engage' },
+];
+---
+<header class="fixed top-0 inset-x-0 z-50 bg-[color-mix(in_oklab,var(--color-ink)_88%,transparent)] backdrop-blur-xl border-b border-[var(--color-rule)]">
+  <div class="container-page">
+    <nav
+      aria-label="Primary"
+      class="flex items-center justify-between py-3.5 sm:py-4 gap-4"
+    >
+      <a href="#top" class="flex items-center gap-3" aria-label="Inference Innovation home">
+        <img
+          src="/iii-mark.svg"
+          alt=""
+          width="64"
+          height="64"
+          class="h-8 sm:h-9 w-auto"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <span class="hidden sm:inline font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-paper)]">
+          Inference&nbsp;<span class="text-[var(--color-mute)]">/</span>&nbsp;Innovation
+        </span>
+      </a>
+
+      <ul class="hidden lg:flex items-center gap-7 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">
+        {links.map((l, i) => (
+          <li class="flex items-center gap-3">
+            <span class="text-[var(--color-rule-strong)]" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <a href={l.href} class="hover:text-[var(--color-paper)] transition-colors duration-200">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+
+      <a
+        href="#engage"
+        class="group inline-flex items-center gap-2 whitespace-nowrap font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
+      >
+        <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
+        <span class="hidden sm:inline">Strategic Review</span>
+        <span class="sm:hidden">Review</span>
+        <span aria-hidden="true" class="text-[var(--color-signal)]">→</span>
+        <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
+      </a>
+    </nav>
+
+    <!-- Mobile / tablet bottom-sheet index -->
+    <details class="lg:hidden fixed bottom-4 left-4 right-4 z-50 corner-tick border border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-ink)_94%,transparent)] backdrop-blur-xl overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-3.5 cursor-pointer list-none font-mono text-[0.7rem] uppercase tracking-[0.18em]">
+        <span class="flex items-center gap-2"><span class="signal-dot" aria-hidden="true"></span> Section Index</span>
+        <span aria-hidden="true" class="text-[var(--color-signal)]">↑</span>
+      </summary>
+      <ol class="border-t border-[var(--color-rule)] divide-y divide-[var(--color-rule)]">
+        {links.map((l, i) => (
+          <li>
+            <a href={l.href} class="flex items-center justify-between px-5 py-3 font-mono text-[0.72rem] uppercase tracking-[0.18em]">
+              <span class="flex items-center gap-3">
+                <span class="text-[var(--color-mute)]">{String(i + 1).padStart(2, '0')}</span>
+                <span>{l.label}</span>
+              </span>
+              <span class="text-[var(--color-signal)]" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </div>
+</header>

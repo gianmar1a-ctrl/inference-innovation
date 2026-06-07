@@ -1,0 +1,76 @@
+---
+interface Props {
+  name: string;
+  role: string;
+  bio?: string;
+  photo?: string;
+  initials?: string;
+  tbd?: boolean;
+  group?: string;
+  index?: number;
+}
+const { name, role, bio, photo, initials, tbd = false, group, index = 0 } = Astro.props;
+const computedInitials = initials ?? name
+  .split(' ')
+  .filter(Boolean)
+  .map((w) => w[0])
+  .slice(0, 2)
+  .join('');
+const indexLabel = String(index).padStart(2, '0');
+---
+<article class={`team-card group flex flex-col h-full reveal ${tbd ? 'is-tbd' : ''}`}>
+  <div class="flex items-baseline justify-between mb-3">
+    <span class="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-signal)]">
+      {group ?? 'Research'}&nbsp;/&nbsp;{indexLabel}
+    </span>
+    {tbd && (
+      <span class="inline-flex items-center gap-1.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-signal)]">
+        <span class="signal-dot" aria-hidden="true"></span> Placeholder
+      </span>
+    )}
+  </div>
+
+  <div class={`relative aspect-[4/5] overflow-hidden rounded-xl corner-tick border border-[var(--color-rule)] bg-[var(--color-surface-2)] ${tbd && !photo ? 'is-tbd-frame' : ''}`}>
+    {photo ? (
+      <img
+        src={photo}
+        alt={tbd ? `${name} (placeholder)` : name}
+        loading="lazy"
+        decoding="async"
+        class="absolute inset-0 h-full w-full object-cover grayscale-[20%] transition-all duration-[400ms] ease-out group-hover:grayscale-0 group-hover:scale-[1.03]"
+      />
+    ) : (
+      <div class="absolute inset-0 grid place-items-center grid-bg">
+        <span class="font-display text-[5.5rem] leading-none text-[var(--color-paper)]/85 tracking-tight" style="font-variation-settings: 'opsz' 144, 'wght' 380;">{computedInitials}</span>
+      </div>
+    )}
+    <!-- Vignette gradient bottom -->
+    <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--color-ink)]/80 to-transparent pointer-events-none"></div>
+  </div>
+
+  <div class="mt-5 flex flex-col flex-1">
+    <h3 class={`text-[1.5rem] leading-[1.05] ${tbd ? 'text-[var(--color-mute)]' : ''}`} style="font-variation-settings: 'opsz' 36, 'wght' 450;">{name}</h3>
+    <div class="mt-2 rule-tick" aria-hidden="true"></div>
+    <p class="mt-3 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-[var(--color-signal)]">{role}</p>
+    {bio && <p class="mt-4 text-[0.875rem] leading-[1.7] text-[var(--color-paper)]/80 max-w-[42ch]">{bio}</p>}
+    <div class="mt-auto pt-6 flex items-center justify-between gap-3 font-mono text-[0.66rem] uppercase tracking-[0.18em]">
+      <a
+        href="mailto:contact@inferenceinnovation.ai"
+        class="text-[var(--color-mute)] hover:text-[var(--color-paper)] transition-colors duration-200 truncate"
+        aria-label={`Email ${name}`}
+      >
+        <span aria-hidden="true" class="text-[var(--color-rule-strong)]">[</span>&nbsp;Email&nbsp;<span aria-hidden="true" class="text-[var(--color-rule-strong)]">]</span>
+      </a>
+      {!tbd && (
+        <a href="#engage" class="text-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200">
+          LinkedIn&nbsp;→
+        </a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .team-card { transition: opacity 240ms ease; }
+  .team-card.is-tbd .corner-tick { border-style: dashed; }
+</style>

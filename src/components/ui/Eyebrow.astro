@@ -1,0 +1,12 @@
+---
+interface Props {
+  signal?: boolean;
+  number?: string;
+}
+const { signal = false, number } = Astro.props;
+---
+<div class={`eyebrow ${signal ? 'signal-eyebrow' : ''} inline-flex items-center gap-2`}>
+  {signal && <span class="signal-dot" aria-hidden="true" />}
+  {number && <span class="font-mono opacity-70">{number}</span>}
+  <slot />
+</div>

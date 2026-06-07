@@ -1,0 +1,110 @@
+---
+import { SplineScene } from './ui/splite';
+
+const headline = ['Industrial', 'Transformation', 'to', '2030.'];
+const stats = [
+  { v: '10', suf: '+', dec: 0, k: 'Years supporting Pillar 1 &amp; 2 MNCs', n: 'S/01' },
+  { v: '30', suf: '',  dec: 0, k: 'Distributed specialists, ~zero overhead', n: 'S/02' },
+  { v: '24', suf: '/7',dec: 0, k: 'Autonomous digital workforce', n: 'S/03' },
+];
+const tickerItems = [
+  'Europe-primary · client-driven globally', 'Frascati Manual', 'Oslo Manual',
+  'IP Box regimes', 'Pillar 1 + Pillar 2 MNCs', 'Government innovation agencies',
+  'Revenue authorities', 'Multi-jurisdiction R&D incentives',
+];
+---
+<section id="top" class="relative overflow-hidden border-b border-[var(--color-rule)]">
+
+  <!-- Two-column hero -->
+  <div class="flex flex-col lg:flex-row lg:h-[92vh] lg:max-h-[960px] lg:min-h-[640px]">
+
+    <!-- LEFT: text content -->
+    <div class="relative flex-1 flex flex-col justify-center pt-28 pb-16 lg:pt-20 lg:pb-0 px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-12 overflow-hidden">
+      <h1 class="word-reveal relative z-10 text-[clamp(2.25rem,5vw,4.75rem)] leading-[0.96] tracking-[-0.025em]">
+        {headline.map((w, i) => (
+          <span class={i === 3 ? 'text-[var(--color-signal)]' : ''}>{w}</span>
+        ))}
+      </h1>
+
+      <p class="reveal relative z-10 mt-8 text-[var(--color-paper)]/75 text-[1rem] leading-[1.75] max-w-[50ch]">
+        We partner with construction, manufacturing, and heavy-industry leaders to build native
+        capability in Applied AI and human amplification — addressing the fifty-year productivity
+        stall through Frascati-compliant R&amp;D&amp;I programs.
+      </p>
+
+      <div class="reveal relative z-10 mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 font-mono text-[0.72rem] uppercase tracking-[0.18em]">
+        <a
+          href="#engage"
+          class="group inline-flex items-center gap-2 text-[var(--color-ink)] bg-[var(--color-signal)] px-5 py-3 hover:bg-[var(--color-paper)] transition-colors duration-200"
+        >
+          <span aria-hidden="true" class="opacity-50">[</span>
+          <span>Request Strategic Review</span>
+          <span aria-hidden="true">→</span>
+          <span aria-hidden="true" class="opacity-50">]</span>
+        </a>
+        <a
+          href="#framework"
+          class="group inline-flex items-center gap-2 px-5 py-3 border border-[var(--color-rule)] text-[var(--color-paper)] hover:border-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
+        >
+          <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
+          <span>Learn the Framework</span>
+          <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
+        </a>
+      </div>
+
+      <dl class="reveal relative z-10 mt-12 pt-8 border-t border-[var(--color-rule)] grid grid-cols-3 gap-6">
+        {stats.map((s) => (
+          <div class="flex flex-col">
+            <span class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-signal)]">{s.n}</span>
+            <div class="mt-2 text-[2rem] sm:text-[2.5rem] leading-none font-display font-light">
+              <span data-countup={s.v} data-suffix={s.suf} data-decimals={s.dec}>0{s.suf}</span>
+            </div>
+            <div class="mt-2 rule-tick" aria-hidden="true"></div>
+            <dt class="mt-2 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[var(--color-mute)] leading-[1.45]" set:html={s.k}></dt>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <!-- RIGHT: Spline 3D scene — no hard box, gradient-masked left edge -->
+    <div class="spline-col relative lg:w-[52%] xl:w-[55%] h-[55vw] sm:h-[45vw] lg:h-auto min-h-[320px] border-t border-[var(--color-rule)] lg:border-t-0">
+      <SplineScene
+        client:load
+        scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+        className="w-full h-full"
+      />
+    </div>
+  </div>
+
+  <!-- Ticker strip -->
+  <div class="border-t border-[var(--color-rule)] reveal-up">
+    <div class="container-page py-5">
+      <div class="ticker font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">
+        <div class="ticker-track">
+          {tickerItems.map((s) => (
+            <span class="inline-flex items-center gap-3 whitespace-nowrap">
+              <span class="text-[var(--color-signal)]" aria-hidden="true">◆</span>{s}
+            </span>
+          ))}
+        </div>
+        <div class="ticker-track" aria-hidden="true">
+          {tickerItems.map((s) => (
+            <span class="inline-flex items-center gap-3 whitespace-nowrap">
+              <span class="text-[var(--color-signal)]" aria-hidden="true">◆</span>{s}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Dissolve the robot's left edge into the hero background on desktop */
+  @media (min-width: 1024px) {
+    .spline-col {
+      mask-image: linear-gradient(to right, transparent 0%, black 28%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 28%);
+    }
+  }
+</style>
