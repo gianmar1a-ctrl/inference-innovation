@@ -154,16 +154,20 @@ export function BeamsBackground({
   }, [intensity]);
 
   const posClass = fixed
-    ? "fixed inset-0 pointer-events-none"
-    : "absolute inset-0 pointer-events-none";
+    ? "fixed inset-0 pointer-events-none overflow-hidden"
+    : "absolute inset-0 pointer-events-none overflow-hidden";
   const z = fixed ? -1 : 0;
 
+  // Wrapper div holds position:fixed/z-index (no filter).
+  // Canvas inside holds filter:blur — keeps filter off a fixed element,
+  // which fixes a Safari bug where filter on position:fixed breaks z-index stacking.
   return (
-    <canvas
-      ref={canvasRef}
-      className={posClass}
-      style={{ filter: "blur(15px)", zIndex: z, willChange: "transform" }}
-      aria-hidden="true"
-    />
+    <div className={posClass} style={{ zIndex: z }} aria-hidden="true">
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0"
+        style={{ filter: "blur(15px)", willChange: "transform" }}
+      />
+    </div>
   );
 }

@@ -22,7 +22,7 @@ export function NavLinks() {
 
   return (
     <ul
-      className="relative flex items-center rounded-full border border-[var(--color-rule)] p-0.5"
+      className="relative isolate flex items-center rounded-full border border-[var(--color-rule)] p-0.5"
       onMouseLeave={() => setPosition((pv) => ({ ...pv, opacity: 0 }))}
     >
       {links.map(({ href, label }) => (

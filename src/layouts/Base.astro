@@ -86,7 +86,11 @@ const orgLd = {
       // In-viewport elements (hero, etc.) are left untouched and appear instantly.
       document.querySelectorAll('.reveal, .reveal-up, .word-reveal').forEach((el) => {
         const rect = el.getBoundingClientRect();
-        const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        // Use document-relative position so this is correct even if the browser
+        // restores scroll before this script runs (rect is viewport-relative).
+        const docTop = rect.top + window.scrollY;
+        const docBottom = rect.bottom + window.scrollY;
+        const inViewport = docTop < window.innerHeight && docBottom > 0;
         if (!inViewport) {
           el.classList.add('scroll-animate');
           if (el.classList.contains('word-reveal')) {
