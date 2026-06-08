@@ -1,5 +1,6 @@
 ---
 import { SplineScene } from './ui/splite';
+import { SlideButton } from './ui/SlideButton';
 
 const headline = ['Industrial', 'Transformation', 'to', '2030.'];
 const stats = [
@@ -32,24 +33,13 @@ const tickerItems = [
         stall through Frascati-compliant R&amp;D&amp;I programs.
       </p>
 
-      <div class="reveal relative z-10 mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 font-mono text-[0.72rem] uppercase tracking-[0.18em]">
-        <a
-          href="#engage"
-          class="group inline-flex items-center gap-2 text-[var(--color-ink)] bg-[var(--color-signal)] px-5 py-3 hover:bg-[var(--color-paper)] transition-colors duration-200"
-        >
-          <span aria-hidden="true" class="opacity-50">[</span>
-          <span>Request Strategic Review</span>
-          <span aria-hidden="true">→</span>
-          <span aria-hidden="true" class="opacity-50">]</span>
-        </a>
-        <a
-          href="#framework"
-          class="group inline-flex items-center gap-2 px-5 py-3 border border-[var(--color-rule)] text-[var(--color-paper)] hover:border-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
-        >
-          <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
-          <span>Learn the Framework</span>
-          <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
-        </a>
+      <div class="reveal relative z-10 mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+        <SlideButton href="#engage" variant="primary" client:load>
+          Request Strategic Review <span aria-hidden="true">→</span>
+        </SlideButton>
+        <SlideButton href="#framework" variant="secondary" client:load>
+          Learn the Framework
+        </SlideButton>
       </div>
 
       <dl class="reveal relative z-10 mt-12 pt-8 border-t border-[var(--color-rule)] grid grid-cols-3 gap-6">
@@ -106,5 +96,15 @@ const tickerItems = [
       mask-image: linear-gradient(to right, transparent 0%, black 28%);
       -webkit-mask-image: linear-gradient(to right, transparent 0%, black 28%);
     }
+  }
+
+  /* Fade in gracefully once the 3D scene hydrates — prevents a hard pop-in */
+  .spline-col {
+    animation: spline-appear 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.2s;
+  }
+  @keyframes spline-appear {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 </style>

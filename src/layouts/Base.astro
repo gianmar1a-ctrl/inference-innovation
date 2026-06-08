@@ -34,6 +34,8 @@ const orgLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://prod.spline.design" />
+    <link rel="dns-prefetch" href="https://prod.spline.design" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -55,6 +57,10 @@ const orgLd = {
         history.scrollRestoration = 'manual';
       }
       window.scrollTo({ top: 0, behavior: 'instant' });
+      // Second enforcement at load — browser scroll restoration can override the head-time call
+      window.addEventListener('load', function() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }, { once: true });
     </script>
   </head>
   <body>
@@ -72,31 +78,22 @@ const orgLd = {
             }
           }
         },
-        { threshold: 0.14, rootMargin: '0px 0px -8% 0px' }
+        { threshold: 0.1, rootMargin: '0px 0px -4% 0px' }
       );
 
-      // Set word-reveal stagger delays before anything becomes visible
-      document.querySelectorAll('.word-reveal').forEach((host) => {
-        host.querySelectorAll('span').forEach((s, i) => {
-          (s as HTMLElement).style.transitionDelay = `${i * 40}ms`;
-        });
-      });
-
-      // For elements already in the viewport on load: show instantly (no transition flash).
-      // For below-fold elements: use IntersectionObserver for scroll-in animation.
+      // Progressive enhancement: elements are visible by default (CSS has no opacity:0).
+      // Only below-fold elements get .scroll-animate, which hides them and arms the transition.
+      // In-viewport elements (hero, etc.) are left untouched and appear instantly.
       document.querySelectorAll('.reveal, .reveal-up, .word-reveal').forEach((el) => {
         const rect = el.getBoundingClientRect();
         const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
-        if (inViewport) {
-          // Kill all transitions on host + word-reveal child spans so they appear instantly
-          (el as HTMLElement).style.transition = 'none';
-          (el as HTMLElement).style.transitionDelay = '0s';
-          el.querySelectorAll('span').forEach((s) => {
-            (s as HTMLElement).style.transition = 'none';
-            (s as HTMLElement).style.transitionDelay = '0s';
-          });
-          el.classList.add('is-in');
-        } else {
+        if (!inViewport) {
+          el.classList.add('scroll-animate');
+          if (el.classList.contains('word-reveal')) {
+            el.querySelectorAll(':scope > span').forEach((s, i) => {
+              (s as HTMLElement).style.transitionDelay = `${i * 50}ms`;
+            });
+          }
           io.observe(el);
         }
       });
@@ -130,15 +127,6 @@ const orgLd = {
         );
         ob.observe(el);
       });
-
-      // ── Scroll progress bar ──────────────────────────────────────────────
-      const progressBar = document.createElement('div');
-      progressBar.className = 'scroll-progress';
-      document.body.prepend(progressBar);
-      window.addEventListener('scroll', () => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        progressBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
-      }, { passive: true });
 
       // ── Active nav section ───────────────────────────────────────────────
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {

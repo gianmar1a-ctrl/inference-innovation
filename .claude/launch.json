@@ -6,7 +6,7 @@
       "runtimeExecutable": "/bin/bash",
       "runtimeArgs": [
         "-c",
-        "export PATH=\"$HOME/.local/node-v22.11.0-darwin-arm64/bin:$PATH\" && cd \"/Users/gianmar1a/Documents/Code Playground/Website_Version_1\" && exec npm run dev -- --host 127.0.0.1 --port 4321"
+        "export PATH=\"$HOME/.local/node-v22.11.0-darwin-arm64/bin:$PATH\" && cd \"/Users/gianmar1a/Documents/Code Playground/inference-innovation\" && exec npm run dev -- --host 127.0.0.1 --port 4321"
       ],
       "port": 4321
     }

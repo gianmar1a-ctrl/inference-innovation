@@ -263,58 +263,81 @@
   background-position: 0 0;
 }
 
-@utility reveal {
+/* Elements are visible by default. JS adds .scroll-animate to below-fold elements only,
+   which hides them and enables the entrance transition. Hero/above-fold elements never
+   get .scroll-animate and therefore never flash invisible. */
+.reveal.scroll-animate {
   opacity: 0;
   transform: translateX(-12px);
-  transition: opacity 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
-.reveal.is-in {
+.reveal.scroll-animate.is-in {
   opacity: 1;
   transform: none;
+  will-change: auto;
 }
 
-@utility reveal-up {
+.reveal-up.scroll-animate {
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
-.reveal-up.is-in {
+.reveal-up.scroll-animate.is-in {
   opacity: 1;
   transform: none;
+  will-change: auto;
 }
 
 .word-reveal > span {
   display: inline-block;
   margin-right: 0.24em;
-  opacity: 0;
-  transform: translateY(0.5em);
-  transition: opacity 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .word-reveal > span:last-child {
   margin-right: 0;
 }
-.word-reveal.is-in > span {
+.word-reveal.scroll-animate > span {
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.word-reveal.scroll-animate.is-in > span {
   opacity: 1;
   transform: none;
+  will-change: auto;
 }
 
 @utility signal-dot {
   display: inline-block;
+  position: relative;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--color-signal);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-signal) 18%, transparent);
-  animation: pulse 2.4s ease-in-out infinite;
+  animation: pulse-dot 2.4s ease-in-out infinite;
 }
-@keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-signal) 18%, transparent); }
-  50%       { opacity: 0.55; box-shadow: 0 0 0 8px color-mix(in oklab, var(--color-signal) 6%, transparent); }
+/* Expanding ring via pseudo-element — transform+opacity only, GPU composited */
+.signal-dot::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--color-signal) 28%, transparent);
+  animation: pulse-ring 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(2.2); opacity: 0; }
 }
 
 @utility ticker {
@@ -329,6 +352,7 @@
   gap: var(--gap);
   flex-shrink: 0;
   animation: marquee 38s linear infinite;
+  will-change: transform;
 }
 @keyframes marquee {
   to { transform: translateX(calc(-100% - var(--gap))); }
@@ -361,7 +385,7 @@
   50%       { transform: translateY(-7px); }
 }
 
-/* Scan line — sweeps top-to-bottom across a rule/border */
+/* Scan line — sweeps top-to-bottom. Uses translateY (compositor-only, no layout reflow) */
 @utility scan-line {
   position: relative;
   overflow: hidden;
@@ -370,6 +394,7 @@
   content: "";
   position: absolute;
   inset-x: 0;
+  top: 0;
   height: 1px;
   background: linear-gradient(
     to right,
@@ -379,12 +404,14 @@
   );
   animation: scan 4s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 @keyframes scan {
-  0%   { top: -1px; opacity: 0; }
+  0%   { transform: translateY(-2px); opacity: 0; }
   8%   { opacity: 1; }
   92%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  /* parent overflow:hidden clips the travel; 100vh safely exceeds any section height */
+  100% { transform: translateY(100vh); opacity: 0; }
 }
 
 /* Signal glow ring — decorative highlight on cards/blocks */
@@ -405,7 +432,7 @@
   transition-delay: calc(var(--stagger, 0) * 100ms);
 }
 
-/* Animated gradient border for highlighted callouts */
+/* Static gradient border — background-position animation causes paint, removed */
 @utility gradient-border {
   position: relative;
   background-clip: padding-box;
@@ -421,29 +448,8 @@
     transparent 50%,
     color-mix(in oklab, var(--color-signal) 20%, transparent)
   );
-  background-size: 200% 200%;
-  animation: gradient-shift 6s ease-in-out infinite;
   z-index: -1;
   pointer-events: none;
-}
-@keyframes gradient-shift {
-  0%   { background-position: 0% 0%; }
-  50%  { background-position: 100% 100%; }
-  100% { background-position: 0% 0%; }
-}
-
-/* ─── Scroll progress bar ──────────────────────────────────────────────────── */
-.scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  width: 0%;
-  background: linear-gradient(to right, var(--color-signal), color-mix(in oklab, var(--color-signal) 60%, white));
-  z-index: 200;
-  pointer-events: none;
-  transform-origin: left;
-  box-shadow: 0 0 8px color-mix(in oklab, var(--color-signal) 60%, transparent);
 }
 
 /* ─── Active nav link ──────────────────────────────────────────────────────── */
@@ -468,14 +474,13 @@
     transition-duration: 0ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal,
-  .reveal-up,
-  .word-reveal > span {
+  .scroll-animate,
+  .word-reveal.scroll-animate > span {
     opacity: 1 !important;
     transform: none !important;
   }
   .scan-line::after,
-  .gradient-border::before {
+  .signal-dot::before {
     display: none !important;
   }
 }

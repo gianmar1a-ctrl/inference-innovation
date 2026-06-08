@@ -1,4 +1,7 @@
 ---
+import { NavLinks } from './ui/NavLinks';
+import { SlideButton } from './ui/SlideButton';
+
 const links = [
   { href: '#challenge', label: 'Challenge' },
   { href: '#framework', label: 'Framework' },
@@ -29,25 +32,15 @@ const links = [
         </span>
       </a>
 
-      <ul class="hidden lg:flex items-center gap-7 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">
-        {links.map((l, i) => (
-          <li class="flex items-center gap-3">
-            <span class="text-[var(--color-rule-strong)]" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            <a href={l.href} class="hover:text-[var(--color-paper)] transition-colors duration-200">{l.label}</a>
-          </li>
-        ))}
-      </ul>
+      <div class="hidden lg:flex">
+        <NavLinks client:load />
+      </div>
 
-      <a
-        href="#engage"
-        class="group inline-flex items-center gap-2 whitespace-nowrap font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
-      >
-        <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
+      <SlideButton href="#engage" variant="primary" client:load>
         <span class="hidden sm:inline">Strategic Review</span>
         <span class="sm:hidden">Review</span>
-        <span aria-hidden="true" class="text-[var(--color-signal)]">→</span>
-        <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
-      </a>
+        <span aria-hidden="true">→</span>
+      </SlideButton>
     </nav>
 
     <!-- Mobile / tablet bottom-sheet index -->

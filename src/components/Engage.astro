@@ -1,4 +1,6 @@
 ---
+import { SlideButton } from './ui/SlideButton';
+
 const directLines = [
   ['Email', 'contact@inferenceinnovation.ai', 'mailto:contact@inferenceinnovation.ai'],
   ['Geography', 'Europe-primary · client-driven globally', null],
@@ -22,25 +24,13 @@ const directLines = [
           A strategic review takes roughly six weeks. We assess your organisation's readiness for Applied AI, identify the highest-leverage inference loop in your operation, and scope a Frascati-compliant program from there.
         </p>
 
-        <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-[0.74rem] uppercase tracking-[0.18em]">
-          <a
-            href="mailto:contact@inferenceinnovation.ai?subject=Strategic%20Review%20Request"
-            class="group inline-flex items-center gap-2 text-[var(--color-ink)] bg-[var(--color-signal)] px-5 py-3 hover:bg-[var(--color-paper)] transition-colors duration-200"
-          >
-            <span aria-hidden="true" class="opacity-50">[</span>
-            <span>Request Strategic Review</span>
-            <span aria-hidden="true">→</span>
-            <span aria-hidden="true" class="opacity-50">]</span>
-          </a>
-          <a
-            href="#"
-            class="group inline-flex items-center gap-2 px-5 py-3 border border-[var(--color-rule)] text-[var(--color-paper)] hover:border-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
-          >
-            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">[</span>
-            <span>Download Research Paper</span>
-            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">↓</span>
-            <span aria-hidden="true" class="text-[var(--color-rule-strong)] group-hover:text-[var(--color-signal)] transition-colors duration-200">]</span>
-          </a>
+        <div class="mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+          <SlideButton href="mailto:contact@inferenceinnovation.ai?subject=Strategic%20Review%20Request" variant="primary" client:load>
+            Request Strategic Review <span aria-hidden="true">→</span>
+          </SlideButton>
+          <SlideButton href="#" variant="secondary" client:load>
+            Download Research Paper <span aria-hidden="true">↓</span>
+          </SlideButton>
         </div>
       </div>
 
