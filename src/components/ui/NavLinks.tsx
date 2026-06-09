@@ -14,6 +14,8 @@ const links = [
 
 type Position = { left: number; width: number; opacity: number };
 
+const CURSOR_BASE_WIDTH = 100; // px — scaleX keeps this compositor-only (no layout)
+
 export function NavLinks() {
   const [position, setPosition] = useState<Position>({ left: 0, width: 0, opacity: 0 });
 
@@ -67,13 +69,15 @@ function Cursor({ position }: { position: Position }) {
   return (
     <motion.li
       animate={{
-        x: position.left,
-        width: position.width,
+        // Center-origin scaleX: x compensates so cursor covers the tab exactly.
+        // Both ends compress symmetrically — far less visible than left-origin squish.
+        x: position.left + (position.width - CURSOR_BASE_WIDTH) / 2,
+        scaleX: position.width > 0 ? position.width / CURSOR_BASE_WIDTH : 0,
         opacity: position.opacity,
       }}
       transition={{ type: "spring", stiffness: 350, damping: 30 }}
       className="absolute z-0 left-0 rounded-full bg-[var(--color-paper)] pointer-events-none opacity-0"
-      style={{ top: 2, bottom: 2, width: 0 }}
+      style={{ top: 2, bottom: 2, width: CURSOR_BASE_WIDTH, transformOrigin: "center" }}
       aria-hidden="true"
     />
   );
