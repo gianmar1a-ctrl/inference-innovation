@@ -17,9 +17,8 @@ interface Beam {
   offscreen: OffscreenCanvas;
 }
 
-const BLUR_PX = 28;                                 // softens beams into background haze (baked once, never re-applied)
+const BLUR_PX = 30;                                 // softens beams into background haze (baked once, never re-applied)
 const BLUR_PAD = BLUR_PX * 2;                       // generous halo so blur isn't clipped
-const RENDER_SCALE = 0.5;                           // backing store at half CSS pixels — blur hides the lower res
 
 // Bake the blurred beam into a bitmap once. The visible canvas does no filter work,
 // so the per-paint cost of a fullscreen blur is gone.
@@ -71,7 +70,10 @@ export function BeamsBackground({
   const beamsRef          = useRef<Beam[]>([]);
   const animationFrameRef = useRef<number>(0);
 
-  const opacityMap = { subtle: 0.7, medium: 0.85, strong: 1 };
+  // Lower than the pre-bake era (was 0.7): baked per-beam blur stays concentrated
+  // to each shape instead of spreading across the surface, so beams composite
+  // about 1.5× more intensely. These values restore the original "soft haze" look.
+  const opacityMap = { subtle: 0.45, medium: 0.6, strong: 0.75 };
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -85,13 +87,14 @@ export function BeamsBackground({
     const beamCount = isMobile ? 8 : 16;
 
     const updateCanvasSize = () => {
-      // Backing store at 0.5× CSS pixels. The baked 15px blur masks the lower
-      // resolution entirely, and the GPU paints 4× fewer pixels per frame.
-      canvas.width        = Math.ceil(window.innerWidth  * RENDER_SCALE);
-      canvas.height       = Math.ceil(window.innerHeight * RENDER_SCALE);
+      // 1× CSS pixels — no DPR upscale (blurred content doesn't benefit from Retina
+      // and the GPU paint cost is significant at 2×). No downscale either, since the
+      // rotated beam bitmaps alias visibly at lower resolution.
+      canvas.width        = window.innerWidth;
+      canvas.height       = window.innerHeight;
       canvas.style.width  = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
-      ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0); // coords stay in CSS px
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       beamsRef.current = Array.from({ length: beamCount }, () =>
         createBeam(window.innerWidth, window.innerHeight)
       );
