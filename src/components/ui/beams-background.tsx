@@ -126,15 +126,8 @@ export function BeamsBackground({
       ctx.restore();
     }
 
-    // 30fps cap — beams are slow + heavily blurred; 30fps is visually imperceptible here.
-    let lastFrameTime = 0;
-    const FRAME_INTERVAL = 1000 / 30;
-
-    function animate(timestamp: number) {
+    function animate() {
       animationFrameRef.current = requestAnimationFrame(animate);
-      if (timestamp - lastFrameTime < FRAME_INTERVAL) return;
-      lastFrameTime = timestamp;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const totalBeams = beamsRef.current.length;
       beamsRef.current.forEach((beam, index) => {
@@ -150,7 +143,6 @@ export function BeamsBackground({
       if (document.hidden) {
         cancelAnimationFrame(animationFrameRef.current);
       } else {
-        lastFrameTime = 0;
         animationFrameRef.current = requestAnimationFrame(animate);
       }
     };
