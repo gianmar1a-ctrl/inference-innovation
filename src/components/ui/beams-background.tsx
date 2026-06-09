@@ -13,25 +13,42 @@ interface Beam {
   hue: number;
   pulse: number;
   pulseSpeed: number;
-  // Pre-computed hue string — hue never changes after creation, avoids string alloc per frame
   hueStr: string;
+  offscreen: OffscreenCanvas; // pre-baked gradient — avoids createLinearGradient every frame
+}
+
+// Build once per beam (at creation and reset), then reuse with drawImage.
+function buildOffscreen(width: number, length: number, hueStr: string): OffscreenCanvas {
+  const oc = new OffscreenCanvas(Math.ceil(width), Math.ceil(length));
+  const octx = oc.getContext("2d")!;
+  const g = octx.createLinearGradient(0, 0, 0, length);
+  g.addColorStop(0,   `hsla(${hueStr}, 0)`);
+  g.addColorStop(0.5, `hsla(${hueStr}, 1)`);
+  g.addColorStop(1,   `hsla(${hueStr}, 0)`);
+  octx.fillStyle = g;
+  octx.fillRect(0, 0, width, length);
+  return oc;
 }
 
 function createBeam(width: number, height: number): Beam {
-  const angle = -35 + Math.random() * 10;
-  const hue = 205 + Math.random() * 40;
+  const angle  = -35 + Math.random() * 10;
+  const hue    = 205 + Math.random() * 40;
+  const hueStr = `${hue.toFixed(1)}, 85%, 65%`;
+  const bw     = 30 + Math.random() * 60;
+  const bl     = height * 2.5;
   return {
     x: Math.random() * width * 1.5 - width * 0.25,
     y: Math.random() * height * 1.5 - height * 0.25,
-    width: 30 + Math.random() * 60,
-    length: height * 2.5,
+    width: bw,
+    length: bl,
     angle,
     speed: 0.6 + Math.random() * 1.2,
     opacity: 0.12 + Math.random() * 0.16,
     hue,
-    hueStr: `${hue.toFixed(1)}, 85%, 65%`,
+    hueStr,
     pulse: Math.random() * Math.PI * 2,
     pulseSpeed: 0.02 + Math.random() * 0.03,
+    offscreen: buildOffscreen(bw, bl, hueStr),
   };
 }
 
@@ -47,15 +64,13 @@ export function BeamsBackground({
   intensity?: "subtle" | "medium" | "strong";
   fixed?: boolean;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const beamsRef = useRef<Beam[]>([]);
+  const canvasRef         = useRef<HTMLCanvasElement>(null);
+  const beamsRef          = useRef<Beam[]>([]);
   const animationFrameRef = useRef<number>(0);
-  const MINIMUM_BEAMS = 20;
 
   const opacityMap = { subtle: 0.7, medium: 0.85, strong: 1 };
 
   useEffect(() => {
-    // Skip animation for users who prefer reduced motion
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const canvas = canvasRef.current;
@@ -63,26 +78,23 @@ export function BeamsBackground({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Fewer beams on mobile — cheaper draw loop, still looks good under CSS blur
-    const isMobile = window.innerWidth < 768;
-    const BEAM_COUNT = Math.ceil(MINIMUM_BEAMS * (isMobile ? 0.6 : 1.5));
+    const isMobile  = window.innerWidth < 768;
+    const beamCount = isMobile ? 10 : 20; // was 12 / 30 — fewer = faster clear + fewer drawImages
 
     const updateCanvasSize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap at 2× — 3× screens don't need it
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width        = window.innerWidth  * dpr;
+      canvas.height       = window.innerHeight * dpr;
+      canvas.style.width  = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
       ctx.scale(dpr, dpr);
-      beamsRef.current = Array.from(
-        { length: BEAM_COUNT },
-        () => createBeam(window.innerWidth, window.innerHeight)
+      beamsRef.current = Array.from({ length: beamCount }, () =>
+        createBeam(window.innerWidth, window.innerHeight)
       );
     };
 
     updateCanvasSize();
 
-    // Throttle resize to once per 200ms — avoids recreating all beams on every pixel change
     let resizeTimer: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(resizeTimer);
@@ -91,65 +103,66 @@ export function BeamsBackground({
     window.addEventListener("resize", onResize);
 
     function resetBeam(beam: Beam, index: number, totalBeams: number) {
-      const column = index % 3;
+      const column  = index % 3;
       const spacing = window.innerWidth / 3;
-      beam.y = window.innerHeight + 100;
-      beam.x =
-        column * spacing +
-        spacing / 2 +
-        (Math.random() - 0.5) * spacing * 0.5;
-      beam.width = 100 + Math.random() * 100;
-      beam.speed = 0.5 + Math.random() * 0.4;
-      const hue = 205 + (index * 40) / totalBeams;
-      beam.hue = hue;
-      beam.hueStr = `${hue.toFixed(1)}, 85%, 65%`;
+      beam.y      = window.innerHeight + 100;
+      beam.x      = column * spacing + spacing / 2 + (Math.random() - 0.5) * spacing * 0.5;
       beam.opacity = 0.2 + Math.random() * 0.1;
+      const hue   = 205 + (index * 40) / totalBeams;
+      beam.hue    = hue;
+      beam.hueStr = `${hue.toFixed(1)}, 85%, 65%`;
+      // Rebuild offscreen only on reset, not every frame
+      beam.offscreen = buildOffscreen(beam.width, beam.length, beam.hueStr);
       return beam;
     }
 
     function drawBeam(ctx: CanvasRenderingContext2D, beam: Beam) {
+      const p = beam.opacity * (0.8 + Math.sin(beam.pulse) * 0.2) * opacityMap[intensity];
       ctx.save();
+      ctx.globalAlpha = p;                                  // one value set, no per-stop string work
       ctx.translate(beam.x, beam.y);
       ctx.rotate((beam.angle * Math.PI) / 180);
-      const p =
-        beam.opacity *
-        (0.8 + Math.sin(beam.pulse) * 0.2) *
-        opacityMap[intensity];
-      // Re-use cached hueStr — avoids `hsla(${hue}, 85%, 65%, …)` string alloc each frame
-      const h = beam.hueStr;
-      const gradient = ctx.createLinearGradient(0, 0, 0, beam.length);
-      gradient.addColorStop(0,   `hsla(${h}, 0)`);
-      gradient.addColorStop(0.1, `hsla(${h}, ${p * 0.5})`);
-      gradient.addColorStop(0.4, `hsla(${h}, ${p})`);
-      gradient.addColorStop(0.6, `hsla(${h}, ${p})`);
-      gradient.addColorStop(0.9, `hsla(${h}, ${p * 0.5})`);
-      gradient.addColorStop(1,   `hsla(${h}, 0)`);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-beam.width / 2, 0, beam.width, beam.length);
+      ctx.drawImage(beam.offscreen, -beam.width / 2, 0);   // blit — no gradient allocation
       ctx.restore();
     }
 
-    function animate() {
-      if (!canvas || !ctx) return;
+    // 30fps cap — beams are slow + heavily blurred; 30fps is visually imperceptible here.
+    let lastFrameTime = 0;
+    const FRAME_INTERVAL = 1000 / 30;
+
+    function animate(timestamp: number) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) return;
+      lastFrameTime = timestamp;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const totalBeams = beamsRef.current.length;
       beamsRef.current.forEach((beam, index) => {
-        beam.y -= beam.speed;
+        beam.y     -= beam.speed;
         beam.pulse += beam.pulseSpeed;
-        if (beam.y + beam.length < -100) {
-          resetBeam(beam, index, totalBeams);
-        }
+        if (beam.y + beam.length < -100) resetBeam(beam, index, totalBeams);
         drawBeam(ctx, beam);
       });
-      animationFrameRef.current = requestAnimationFrame(animate);
     }
 
-    animate();
+    // Pause rAF entirely when the tab is hidden — saves CPU/battery
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameRef.current);
+      } else {
+        lastFrameTime = 0;
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
       clearTimeout(resizeTimer);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      cancelAnimationFrame(animationFrameRef.current);
     };
   }, [intensity]);
 
@@ -158,9 +171,6 @@ export function BeamsBackground({
     : "absolute inset-0 pointer-events-none overflow-hidden";
   const z = fixed ? -1 : 0;
 
-  // Wrapper div holds position:fixed/z-index (no filter).
-  // Canvas inside holds filter:blur — keeps filter off a fixed element,
-  // which fixes a Safari bug where filter on position:fixed breaks z-index stacking.
   return (
     <div className={posClass} style={{ zIndex: z }} aria-hidden="true">
       <canvas
