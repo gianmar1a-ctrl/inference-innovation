@@ -37,10 +37,12 @@ export function SlideButton({
         aria-hidden="true"
       />
       <span
-        className={`relative z-10 inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 whitespace-nowrap ${
+        className={`relative z-10 inline-flex items-center justify-center gap-2.5 px-5 py-3 sm:px-6 whitespace-nowrap transition-colors duration-150 ${
           isPrimary
             ? "text-[var(--color-ink)]"
-            : "text-[var(--color-paper)] mix-blend-difference"
+            : hovered
+            ? "text-[var(--color-ink)]"
+            : "text-[var(--color-paper)]"
         }`}
       >
         {children}
