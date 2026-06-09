@@ -12,10 +12,7 @@ const links = [
   { href: "#engage", label: "Engage" },
 ];
 
-// width/left stored so Cursor can compute x + scaleX (compositor-only, no layout)
 type Position = { left: number; width: number; opacity: number };
-
-const CURSOR_BASE_WIDTH = 100; // px — cursor CSS width; scaleX adjusts visual width
 
 export function NavLinks() {
   const [position, setPosition] = useState<Position>({ left: 0, width: 0, opacity: 0 });
@@ -71,12 +68,12 @@ function Cursor({ position }: { position: Position }) {
     <motion.li
       animate={{
         x: position.left,
-        scaleX: position.width > 0 ? position.width / CURSOR_BASE_WIDTH : 0,
+        width: position.width,
         opacity: position.opacity,
       }}
       transition={{ type: "spring", stiffness: 350, damping: 30 }}
       className="absolute z-0 left-0 rounded-full bg-[var(--color-paper)] pointer-events-none opacity-0"
-      style={{ top: 2, bottom: 2, width: CURSOR_BASE_WIDTH, transformOrigin: "left center" }}
+      style={{ top: 2, bottom: 2, width: 0 }}
       aria-hidden="true"
     />
   );

@@ -42,26 +42,63 @@ const links = [
         <span aria-hidden="true">→</span>
       </SlideButton>
     </nav>
-
-    <!-- Mobile / tablet bottom-sheet index -->
-    <details class="lg:hidden fixed bottom-4 left-4 right-4 z-50 corner-tick border border-[var(--color-rule)] bg-[color-mix(in_oklab,var(--color-ink)_94%,transparent)] backdrop-blur-xl overflow-hidden">
-      <summary class="flex items-center justify-between px-5 py-3.5 cursor-pointer list-none font-mono text-[0.7rem] uppercase tracking-[0.18em]">
-        <span class="flex items-center gap-2"><span class="signal-dot" aria-hidden="true"></span> Section Index</span>
-        <span aria-hidden="true" class="text-[var(--color-signal)]">↑</span>
-      </summary>
-      <ol class="border-t border-[var(--color-rule)] divide-y divide-[var(--color-rule)]">
-        {links.map((l, i) => (
-          <li>
-            <a href={l.href} class="flex items-center justify-between px-5 py-3 font-mono text-[0.72rem] uppercase tracking-[0.18em]">
-              <span class="flex items-center gap-3">
-                <span class="text-[var(--color-mute)]">{String(i + 1).padStart(2, '0')}</span>
-                <span>{l.label}</span>
-              </span>
-              <span class="text-[var(--color-signal)]" aria-hidden="true">→</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </details>
   </div>
 </header>
+
+<!-- Mobile / tablet bottom-sheet — outside <header> so backdrop-filter doesn't trap fixed positioning.
+     The <details> is sized by the summary only; <ol> is absolute-positioned above it so native
+     show/hide isn't broken by display:flex. -->
+<details id="mobile-nav" class="lg:hidden fixed bottom-4 left-4 right-4 z-50">
+  <summary class="flex items-center justify-between rounded-full bg-[var(--color-paper)] shadow-[0_8px_32px_rgba(0,0,0,0.6)] px-4 py-2.5 cursor-pointer list-none">
+    <span class="flex items-center gap-2.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-ink)]">
+      <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-signal)] shrink-0" aria-hidden="true"></span>
+      Section Index
+    </span>
+    <span class="nav-arrow font-mono text-[0.75rem] text-[var(--color-ink)]" aria-hidden="true">↑</span>
+  </summary>
+  <ol id="mobile-nav-list" class="absolute bottom-full left-0 right-0 mb-2 rounded-2xl border border-white/20 bg-white/[0.08] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] overflow-hidden divide-y divide-white/10">
+    {links.map((l, i) => (
+      <li>
+        <a href={l.href} class="flex items-center gap-3 px-4 py-3.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[var(--color-paper)]">
+          <span class="text-[var(--color-mute)]">{String(i + 1).padStart(2, '0')}</span>
+          <span class="flex-1">{l.label}</span>
+          <span class="text-[var(--color-signal)]" aria-hidden="true">→</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</details>
+
+<style>
+  .nav-arrow { transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1); }
+  #mobile-nav.is-open .nav-arrow { transform: rotate(180deg); }
+</style>
+
+<script>
+  const nav  = document.getElementById('mobile-nav')   as HTMLDetailsElement | null;
+  const list = document.getElementById('mobile-nav-list') as HTMLElement | null;
+  if (nav && list) {
+    const D = 260, E = 'cubic-bezier(0.4,0,0.2,1)';
+    nav.addEventListener('click', (e) => {
+      if (!(e.target as Element).closest('summary')) return;
+      e.preventDefault();
+      if (nav.open) {
+        nav.classList.remove('is-open');
+        const anim = list.animate(
+          [{ opacity: '1', transform: 'translateY(0)'  },
+           { opacity: '0', transform: 'translateY(8px)' }],
+          { duration: D, easing: E, fill: 'forwards' }
+        );
+        anim.onfinish = () => { nav.open = false; anim.cancel(); };
+      } else {
+        nav.open = true;
+        nav.classList.add('is-open');
+        list.animate(
+          [{ opacity: '0', transform: 'translateY(8px)' },
+           { opacity: '1', transform: 'translateY(0)'  }],
+          { duration: D, easing: E }
+        );
+      }
+    });
+  }
+</script>
