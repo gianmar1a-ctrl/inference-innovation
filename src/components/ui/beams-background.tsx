@@ -14,19 +14,27 @@ interface Beam {
   pulse: number;
   pulseSpeed: number;
   hueStr: string;
-  offscreen: OffscreenCanvas; // pre-baked gradient — avoids createLinearGradient every frame
+  offscreen: OffscreenCanvas;
 }
 
-// Build once per beam (at creation and reset), then reuse with drawImage.
+const BLUR_PX = 28;                                 // softens beams into background haze (baked once, never re-applied)
+const BLUR_PAD = BLUR_PX * 2;                       // generous halo so blur isn't clipped
+const RENDER_SCALE = 0.5;                           // backing store at half CSS pixels — blur hides the lower res
+
+// Bake the blurred beam into a bitmap once. The visible canvas does no filter work,
+// so the per-paint cost of a fullscreen blur is gone.
 function buildOffscreen(width: number, length: number, hueStr: string): OffscreenCanvas {
-  const oc = new OffscreenCanvas(Math.ceil(width), Math.ceil(length));
+  const W = Math.ceil(width  + BLUR_PAD * 2);
+  const L = Math.ceil(length + BLUR_PAD * 2);
+  const oc = new OffscreenCanvas(W, L);
   const octx = oc.getContext("2d")!;
-  const g = octx.createLinearGradient(0, 0, 0, length);
+  octx.filter = `blur(${BLUR_PX}px)`;
+  const g = octx.createLinearGradient(0, BLUR_PAD, 0, length + BLUR_PAD);
   g.addColorStop(0,   `hsla(${hueStr}, 0)`);
   g.addColorStop(0.5, `hsla(${hueStr}, 1)`);
   g.addColorStop(1,   `hsla(${hueStr}, 0)`);
   octx.fillStyle = g;
-  octx.fillRect(0, 0, width, length);
+  octx.fillRect(BLUR_PAD, BLUR_PAD, width, length);
   return oc;
 }
 
@@ -52,11 +60,6 @@ function createBeam(width: number, height: number): Beam {
   };
 }
 
-/**
- * Animated light-beam background.
- * `fixed={true}` → position:fixed, z-index:-1 (full-site layer behind all content).
- * `fixed={false}` (default) → position:absolute, sits inside a relative container.
- */
 export function BeamsBackground({
   intensity = "subtle",
   fixed = false,
@@ -79,15 +82,16 @@ export function BeamsBackground({
     if (!ctx) return;
 
     const isMobile  = window.innerWidth < 768;
-    const beamCount = isMobile ? 10 : 20; // was 12 / 30 — fewer = faster clear + fewer drawImages
+    const beamCount = isMobile ? 8 : 16;
 
     const updateCanvasSize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width        = window.innerWidth  * dpr;
-      canvas.height       = window.innerHeight * dpr;
+      // Backing store at 0.5× CSS pixels. The baked 15px blur masks the lower
+      // resolution entirely, and the GPU paints 4× fewer pixels per frame.
+      canvas.width        = Math.ceil(window.innerWidth  * RENDER_SCALE);
+      canvas.height       = Math.ceil(window.innerHeight * RENDER_SCALE);
       canvas.style.width  = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0); // coords stay in CSS px
       beamsRef.current = Array.from({ length: beamCount }, () =>
         createBeam(window.innerWidth, window.innerHeight)
       );
@@ -111,7 +115,6 @@ export function BeamsBackground({
       const hue   = 205 + (index * 40) / totalBeams;
       beam.hue    = hue;
       beam.hueStr = `${hue.toFixed(1)}, 85%, 65%`;
-      // Rebuild offscreen only on reset, not every frame
       beam.offscreen = buildOffscreen(beam.width, beam.length, beam.hueStr);
       return beam;
     }
@@ -119,10 +122,11 @@ export function BeamsBackground({
     function drawBeam(ctx: CanvasRenderingContext2D, beam: Beam) {
       const p = beam.opacity * (0.8 + Math.sin(beam.pulse) * 0.2) * opacityMap[intensity];
       ctx.save();
-      ctx.globalAlpha = p;                                  // one value set, no per-stop string work
+      ctx.globalAlpha = p;
       ctx.translate(beam.x, beam.y);
       ctx.rotate((beam.angle * Math.PI) / 180);
-      ctx.drawImage(beam.offscreen, -beam.width / 2, 0);   // blit — no gradient allocation
+      // Offset by -BLUR_PAD so the original beam center stays put despite the halo
+      ctx.drawImage(beam.offscreen, -beam.width / 2 - BLUR_PAD, -BLUR_PAD);
       ctx.restore();
     }
 
@@ -138,7 +142,6 @@ export function BeamsBackground({
       });
     }
 
-    // Pause rAF entirely when the tab is hidden — saves CPU/battery
     const onVisibility = () => {
       if (document.hidden) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -164,12 +167,9 @@ export function BeamsBackground({
   const z = fixed ? -1 : 0;
 
   return (
-    <div className={posClass} style={{ zIndex: z }} aria-hidden="true">
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0"
-        style={{ filter: "blur(15px)", willChange: "transform" }}
-      />
+    <div className={posClass} style={{ zIndex: z, contain: "strict" }} aria-hidden="true">
+      {/* No CSS filter — blur is baked into each beam bitmap. */}
+      <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
 }
