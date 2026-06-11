@@ -467,6 +467,23 @@
   transition: background-color 200ms ease, box-shadow 200ms ease !important;
 }
 
+/* ─── Embodiment cycle (hero robot materialize/dematerialize) ─────────────── */
+.spline-embody {
+  position: relative;
+  z-index: 1; /* robot in the foreground — digit rain falls behind it */
+  width: 100%;
+  height: 100%;
+  transform: translateZ(0); /* own compositor layer — keeps Safari mask swaps cheap */
+  transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.embody-field {
+  position: absolute;
+  inset: 0;
+  width: 100%; /* canvas is a replaced element — inset alone won't stretch it */
+  height: 100%;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0ms !important;
@@ -481,6 +498,14 @@
   }
   .scan-line::after,
   .signal-dot::before {
+    display: none !important;
+  }
+  .spline-embody {
+    opacity: 1 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  .embody-field {
     display: none !important;
   }
 }
