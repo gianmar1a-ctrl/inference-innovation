@@ -38,19 +38,20 @@ There are no React/Svelte/Vue islands. All interactivity is vanilla JS inside th
 
 All design tokens live in the `@theme` block in `src/styles/global.css` — this is Tailwind CSS 4's CSS-first config (no `tailwind.config.js`). The `@tailwindcss/vite` plugin in `astro.config.mjs` activates it. New utilities must use `@utility` (not `@layer utilities { .x { } }`).
 
-**5-color palette:**
-- `--color-ink` `#08090c` — page background
-- `--color-surface` / `--color-surface-2` — elevated card backgrounds
-- `--color-paper` `#ece6d5` — primary text (warm bone, 17.6:1 on ink)
-- `--color-mute` `#8c91a4` — secondary text; only for non-essential labels (6.9:1 on ink — AA, not AAA)
-- `--color-rule` / `--color-rule-strong` — hairline and tick-mark color
-- `--color-signal` `#e8a24a` — single amber accent; used sparingly
+**Palette** (navy/blue, derived from `iii-mark.svg`: `#0f274a` deep navy + `#3f8cff` electric blue):
+- `--color-ink` `#070d18` — page background (near-black navy)
+- `--color-surface` `#0d1e35` / `--color-surface-2` `#0f274a` — elevated card backgrounds
+- `--color-paper` `#e8f0ff` — primary text (ice blue-white, 17.0:1 on ink)
+- `--color-mute` `#5a7fa8` — secondary text; only for non-essential labels (4.7:1 on ink — passes AA for normal text, barely; not AAA)
+- `--color-rule` `#0f1f33` / `--color-rule-strong` `#162840` — hairline and tick-mark color
+- `--color-signal` `#3f8cff` — single electric-blue accent; used sparingly (5.9:1 on ink). Variants: `--color-signal-soft` (12% tint for fills), `--color-signal-ink` (dark text on signal backgrounds), `--color-accent` (alias of signal)
+
+The `@theme` block also mirrors shadcn tokens (`--color-card`, `--color-card-foreground`, `--color-muted-foreground`, `--color-border`) onto the same palette for ported shadcn components.
 
 **Fonts (self-hosted via Fontsource, no CDN):**
-- `--font-display`: Fraunces Variable — headings only; imported as `full.css` and `full-italic.css` to enable the `opsz` axis (9–144) in addition to `wght`
-- `--font-mono`: JetBrains Mono Variable — body text, eyebrows, labels, captions, nav, footer; the entire non-heading type system
-
-`h1`–`h4` base styles set `font-variation-settings` explicitly per level (Tailwind 4 won't do this automatically): h1 `"opsz" 144`, h2 `"opsz" 96`, h3 `"opsz" 48`, h4 `"opsz" 24`. `font-size-adjust: 0.52` stabilises FOUT during font swap.
+- `--font-display`: Outfit Variable — headings (`h1`–`h4`); `wght` axis only (h1 550, h2/h3 500, h4 600), no `opsz` and no true italic — `em` inside headings renders upright in signal blue instead of italic
+- `--font-body`: DM Sans Variable — body text (set on `body`)
+- `--font-mono`: JetBrains Mono Variable — eyebrows, labels, captions, nav, footer
 
 **Section layout pattern — `section-grid`:**
 Every content section uses a 3-column CSS Grid at lg+: `--rail-w (4rem) | minmax(0,1fr) | --margin-w (12rem)`. Child elements use classes `.rail` (section number), `.body` (content), `.margin` (annotation). Stacks to single column at sm/md.
@@ -65,7 +66,7 @@ Every content section uses a 3-column CSS Grid at lg+: `--rail-w (4rem) | minmax
 
 **Utility classes defined in `global.css`:**
 - `.eyebrow` / `.signal-eyebrow` — mono uppercase label
-- `.section-num` — amber mono section marker (`§ 01`)
+- `.section-num` — signal-blue mono section marker (`§ 01`)
 - `.container-page` — max-width page wrapper with inline padding
 - `.prose-narrow` — prose-width cap
 - `.rule-tick` — hairline `<div>` with vertical tick marks at each end (engineering-drawing aesthetic); `::before`/`::after` are on the class, so the element must be the rule itself, not a wrapper
@@ -74,7 +75,7 @@ Every content section uses a 3-column CSS Grid at lg+: `--rail-w (4rem) | minmax
 - `.reveal` — horizontal `translateX(-12px)` scroll-in (280ms); toggled to `.is-in` by `Base.astro` IntersectionObserver
 - `.reveal-up` — vertical `translateY(8px)` scroll-in (240ms); observed by the same observer
 - `.word-reveal` — splits text into `<span>` words that stagger in; wrap target text in `<span>` tags manually
-- `.signal-dot` — pulsing amber 6px dot
+- `.signal-dot` — pulsing signal-blue 6px dot
 - `.ticker` / `.ticker-track` — infinite marquee (38s)
 - `.dot-leader` — flex row for dossier line-items; add `.leader-fill` span between label and value for dotted line
 
