@@ -1,7 +1,10 @@
 /**
  * Embodiment cycle for the hero Spline robot.
  *
- *   physical → dissolving → ternary → emerging → physical → …
+ *   ternary → emerging → physical → dissolving → ternary → …
+ *
+ * The loop opens in the ternary (Matrix rain) phase, so on page load the
+ * digital field appears first and the robot emerges out of it.
  *
  * The hosted Spline scene can't be edited, so the cycle is screen-space:
  * Matrix-style digital rain (-1/0/1 columns with fading trails) on a 2D
@@ -14,10 +17,10 @@
 
 type Phase = 'physical' | 'dissolving' | 'ternary' | 'emerging'
 
-const HOLD_FIRST = 14000
-const HOLD = 12000
+const HOLD = 8000
 const DISSOLVE = 2400
-const TERNARY = 5000
+const TERNARY = 4000
+const TERNARY_FIRST = 4200 // opening matrix display before the robot first emerges
 const EMERGE = 2800
 
 const WIPE_OUT = 2200 // dissolving: hide top→bottom
@@ -291,8 +294,9 @@ export class EmbodimentCycle {
   private last = 0
 
   private holdTimer: ReturnType<typeof setTimeout> | null = null
-  private holdRemaining = HOLD_FIRST
+  private holdRemaining = HOLD
   private holdDeadline = 0
+  private ternaryFor = TERNARY_FIRST
 
   private field: MatrixRain
 
@@ -310,9 +314,14 @@ export class EmbodimentCycle {
   start(app: { play?: () => void; stop?: () => void }) {
     if (this.destroyed || this.app) return
     this.app = app
+    // Hide the robot right away — the loop opens in the matrix phase
+    this.phase = 'ternary'
+    this.setStatic('0')
     this.applyWebGL()
-    void this.init()
-    this.enterPhysical(true)
+    void this.init().then(() => {
+      if (this.destroyed) return
+      this.enterTernary(true)
+    })
   }
 
   private async init() {
@@ -394,9 +403,9 @@ export class EmbodimentCycle {
     if (this.phase === 'dissolving') {
       if (this.elapsed >= DISSOLVE) this.enterTernary()
     } else if (this.phase === 'ternary') {
-      if (this.elapsed >= TERNARY) this.enterEmerging()
+      if (this.elapsed >= this.ternaryFor) this.enterEmerging()
     } else if (this.phase === 'emerging') {
-      if (this.elapsed >= EMERGE) this.enterPhysical(false)
+      if (this.elapsed >= EMERGE) this.enterPhysical()
     }
 
     const fieldActive = this.field.step(dt)
@@ -406,12 +415,12 @@ export class EmbodimentCycle {
     }
   }
 
-  private enterPhysical(first: boolean) {
+  private enterPhysical() {
     this.phase = 'physical'
     this.clearMask()
     this.setStatic('1')
     this.field.rainOff()
-    this.holdRemaining = first ? HOLD_FIRST : HOLD
+    this.holdRemaining = HOLD
     this.applyWebGL()
     if (!this.paused) this.armHold()
   }
@@ -425,12 +434,15 @@ export class EmbodimentCycle {
     this.startRaf()
   }
 
-  private enterTernary() {
+  private enterTernary(first = false) {
     this.phase = 'ternary'
     this.elapsed = 0
+    this.ternaryFor = first ? TERNARY_FIRST : TERNARY
     this.clearMask()
     this.setStatic('0')
+    if (first) this.field.rainOn() // opening entry — rain isn't running yet
     this.applyWebGL() // stops the WebGL loop — robot is invisible
+    if (first && !this.paused) this.startRaf()
   }
 
   private enterEmerging() {
