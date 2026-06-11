@@ -14,26 +14,45 @@ interface Beam {
   pulse: number;
   pulseSpeed: number;
   hueStr: string;
-  offscreen: OffscreenCanvas;
+  offscreen: OffscreenCanvas | HTMLCanvasElement;
 }
 
 const BLUR_PX = 30;                                 // softens beams into background haze (baked once, never re-applied)
-const BLUR_PAD = BLUR_PX * 2;                       // generous halo so blur isn't clipped
+const BLUR_PAD = BLUR_PX * 2;                       // generous halo around the soft falloff
 
-// Bake the blurred beam into a bitmap once. The visible canvas does no filter work,
-// so the per-paint cost of a fullscreen blur is gone.
-function buildOffscreen(width: number, length: number, hueStr: string): OffscreenCanvas {
+// Bake the soft beam into a bitmap once. The haze is built from pure gradients —
+// vertical color falloff × horizontal alpha falloff — instead of ctx.filter blur,
+// which Safari's 2D canvas does not implement (it silently no-ops, leaving
+// hard-edged bars). Gradients render identically in every browser, and the
+// visible canvas still does zero per-paint filter work.
+function buildOffscreen(width: number, length: number, hueStr: string): OffscreenCanvas | HTMLCanvasElement {
   const W = Math.ceil(width  + BLUR_PAD * 2);
   const L = Math.ceil(length + BLUR_PAD * 2);
-  const oc = new OffscreenCanvas(W, L);
-  const octx = oc.getContext("2d")!;
-  octx.filter = `blur(${BLUR_PX}px)`;
-  const g = octx.createLinearGradient(0, BLUR_PAD, 0, length + BLUR_PAD);
+  let oc: OffscreenCanvas | HTMLCanvasElement;
+  if (typeof OffscreenCanvas !== "undefined") {
+    oc = new OffscreenCanvas(W, L);
+  } else {
+    oc = document.createElement("canvas");
+    oc.width = W;
+    oc.height = L;
+  }
+  const octx = oc.getContext("2d") as CanvasRenderingContext2D;
+  // Vertical color falloff along the beam
+  const g = octx.createLinearGradient(0, 0, 0, L);
   g.addColorStop(0,   `hsla(${hueStr}, 0)`);
   g.addColorStop(0.5, `hsla(${hueStr}, 1)`);
   g.addColorStop(1,   `hsla(${hueStr}, 0)`);
   octx.fillStyle = g;
-  octx.fillRect(BLUR_PAD, BLUR_PAD, width, length);
+  octx.fillRect(0, 0, W, L);
+  // Horizontal alpha falloff across the beam — emulates the lateral blur
+  const h = octx.createLinearGradient(0, 0, W, 0);
+  h.addColorStop(0,   "rgba(0,0,0,0)");
+  h.addColorStop(0.5, "rgba(0,0,0,1)");
+  h.addColorStop(1,   "rgba(0,0,0,0)");
+  octx.globalCompositeOperation = "destination-in";
+  octx.fillStyle = h;
+  octx.fillRect(0, 0, W, L);
+  octx.globalCompositeOperation = "source-over";
   return oc;
 }
 
@@ -133,7 +152,7 @@ export function BeamsBackground({
       ctx.restore();
     }
 
-    function animate() {
+    const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const totalBeams = beamsRef.current.length;
@@ -143,7 +162,7 @@ export function BeamsBackground({
         if (beam.y + beam.length < -100) resetBeam(beam, index, totalBeams);
         drawBeam(ctx, beam);
       });
-    }
+    };
 
     const onVisibility = () => {
       if (document.hidden) {
