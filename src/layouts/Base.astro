@@ -29,7 +29,7 @@ const orgLd = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#08090c" />
+    <meta name="theme-color" content="#070d18" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -42,10 +42,14 @@ const orgLd = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Inference Innovation" />
+    <meta property="og:image" content={new URL('/logo.png', Astro.site ?? 'https://www.inferenceinnovation.ai').toString()} />
+    <meta property="og:image:width" content="600" />
+    <meta property="og:image:height" content="400" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/logo.png', Astro.site ?? 'https://www.inferenceinnovation.ai').toString()} />
 
     <meta name="format-detection" content="telephone=no" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -69,8 +73,10 @@ const orgLd = {
     <slot />
 
     <script>
+      let ioAlive = false;
       const io = new IntersectionObserver(
         (entries) => {
+          ioAlive = true;
           for (const entry of entries) {
             if (entry.isIntersecting) {
               entry.target.classList.add('is-in');
@@ -102,6 +108,16 @@ const orgLd = {
         }
       });
 
+      // Watchdog: a healthy IntersectionObserver delivers an initial record for
+      // every observed element almost immediately. If no callback has run after
+      // 1.5s (broken embedders / stalled rendering), fail open — reveal everything
+      // rather than leave below-fold content permanently invisible.
+      setTimeout(() => {
+        if (!ioAlive) {
+          document.querySelectorAll('.scroll-animate').forEach((el) => el.classList.add('is-in'));
+        }
+      }, 1500);
+
       document.querySelectorAll<HTMLElement>('[data-countup]').forEach((el) => {
         const target = parseFloat(el.dataset.countup || '0');
         const suffix = el.dataset.suffix || '';
@@ -132,25 +148,27 @@ const orgLd = {
         ob.observe(el);
       });
 
-      // ── Active nav section ───────────────────────────────────────────────
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const navAnchors = document.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]');
-        const sectionIds = ['challenge','framework','network','programs','team','engage'];
-        const navSectionObserver = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const id = entry.target.id;
-              navAnchors.forEach((a) => {
-                a.classList.toggle('nav-active', a.getAttribute('href') === '#' + id);
-              });
-            }
-          });
-        }, { threshold: 0.25, rootMargin: '-5% 0px -60% 0px' });
-        sectionIds.forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) navSectionObserver.observe(el);
+      // ── Active nav section (state, not motion — works under reduced-motion too)
+      // Anchors are queried per-callback: NavLinks is a React island that may
+      // hydrate after this script runs. Scoped to the <ul> so the Strategic
+      // Review button (same <nav>, also #engage) never gets the active state.
+      const sectionIds = ['challenge','framework','network','programs','team','engage'];
+      const navSectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll<HTMLAnchorElement>('nav ul a[href^="#"]').forEach((a) => {
+              a.classList.toggle('nav-active', a.getAttribute('href') === '#' + id);
+            });
+          }
         });
-      }
+      // threshold 0: tall sections never reach a fractional visibility threshold
+      // inside this narrow band, so any intersection with the band counts
+      }, { threshold: 0, rootMargin: '-5% 0px -60% 0px' });
+      sectionIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) navSectionObserver.observe(el);
+      });
 
       // ── Card highlight on hover (adds .card-highlighted class) ─────────
       document.querySelectorAll<HTMLElement>('.signal-glow').forEach((card) => {

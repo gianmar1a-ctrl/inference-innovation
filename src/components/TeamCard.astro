@@ -8,8 +8,11 @@ interface Props {
   tbd?: boolean;
   group?: string;
   index?: number;
+  linkedin?: string;
 }
-const { name, role, bio, photo, initials, tbd = false, group, index = 0 } = Astro.props;
+const { name, role, bio, photo, initials, tbd = false, group, index = 0, linkedin } = Astro.props;
+// Falls back to linkedin.com until per-member profile URLs are supplied
+const linkedinHref = linkedin ?? 'https://www.linkedin.com/';
 const computedInitials = initials ?? name
   .split(' ')
   .filter(Boolean)
@@ -62,7 +65,13 @@ const indexLabel = String(index).padStart(2, '0');
         <span aria-hidden="true" class="text-[var(--color-rule-strong)]">[</span>&nbsp;Email&nbsp;<span aria-hidden="true" class="text-[var(--color-rule-strong)]">]</span>
       </a>
       {!tbd && (
-        <a href="#engage" class="text-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200">
+        <a
+          href={linkedinHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${name} on LinkedIn`}
+          class="text-[var(--color-paper)] hover:text-[var(--color-signal)] transition-colors duration-200"
+        >
           LinkedIn&nbsp;→
         </a>
       )}

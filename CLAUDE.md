@@ -83,7 +83,7 @@ Every content section uses a 3-column CSS Grid at lg+: `--rail-w (4rem) | minmax
 
 ## Content Pending
 
-Horizon Lab member details are placeholders in `src/components/ResearchTeam.astro` (lines ~37–41). When confirmed, update the three `horizon` array entries with real names, roles, bios, and (for the third member) replace `initials: 'HL'` with `photo: '/images/team/horizon-3.jpg'` after dropping the image in `public/images/team/`.
+All three Horizon Lab members in `src/components/ResearchTeam.astro` are confirmed, including Wang Wenjun (王文俊, romanized as pinyin per client request). No team content is pending.
 
 ## Image Handling
 

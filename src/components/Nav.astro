@@ -79,17 +79,24 @@ const links = [
   const list = document.getElementById('mobile-nav-list') as HTMLElement | null;
   if (nav && list) {
     const D = 260, E = 'cubic-bezier(0.4,0,0.2,1)';
+    const close = () => {
+      if (!nav.open) return;
+      nav.classList.remove('is-open');
+      const anim = list.animate(
+        [{ opacity: '1', transform: 'translateY(0)'  },
+         { opacity: '0', transform: 'translateY(8px)' }],
+        { duration: D, easing: E, fill: 'forwards' }
+      );
+      anim.onfinish = () => { nav.open = false; anim.cancel(); };
+    };
     nav.addEventListener('click', (e) => {
-      if (!(e.target as Element).closest('summary')) return;
+      const target = e.target as Element;
+      // Navigating to a section should also dismiss the sheet
+      if (target.closest('#mobile-nav-list a')) { close(); return; }
+      if (!target.closest('summary')) return;
       e.preventDefault();
       if (nav.open) {
-        nav.classList.remove('is-open');
-        const anim = list.animate(
-          [{ opacity: '1', transform: 'translateY(0)'  },
-           { opacity: '0', transform: 'translateY(8px)' }],
-          { duration: D, easing: E, fill: 'forwards' }
-        );
-        anim.onfinish = () => { nav.open = false; anim.cancel(); };
+        close();
       } else {
         nav.open = true;
         nav.classList.add('is-open');
@@ -99,6 +106,10 @@ const links = [
           { duration: D, easing: E }
         );
       }
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    document.addEventListener('click', (e) => {
+      if (nav.open && !(e.target as Element).closest('#mobile-nav')) close();
     });
   }
 </script>

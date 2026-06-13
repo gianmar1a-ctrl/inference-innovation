@@ -70,9 +70,9 @@
     padding-top: 68px;
   }
 
-  /* Extra breathing room when scrolling to hash anchors */
+  /* Anchor targets must clear the fixed nav (~80px) plus breathing room */
   section[id] {
-    scroll-margin-top: 16px;
+    scroll-margin-top: 96px;
   }
 
   body {
@@ -88,7 +88,7 @@
 
   ::selection {
     background: var(--color-signal);
-    color: var(--color-paper);
+    color: var(--color-signal-ink);
   }
 
   :focus-visible {
@@ -452,9 +452,10 @@
   pointer-events: none;
 }
 
-/* ─── Active nav link ──────────────────────────────────────────────────────── */
-.nav-active {
-  color: var(--color-paper) !important;
+/* ─── Active nav link — signal blue marks the section in view; hover keeps the
+   ink-on-pill treatment from NavLinks ─────────────────────────────────────── */
+.nav-active:not(:hover) {
+  color: var(--color-signal) !important;
 }
 
 /* ─── Card highlight on hover ──────────────────────────────────────────────── */

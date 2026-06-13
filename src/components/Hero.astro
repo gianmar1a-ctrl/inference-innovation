@@ -8,11 +8,6 @@ const stats = [
   { v: '30', suf: '',  dec: 0, k: 'Distributed specialists, ~zero overhead', n: 'S/02' },
   { v: '24', suf: '/7',dec: 0, k: 'Autonomous digital workforce', n: 'S/03' },
 ];
-const tickerItems = [
-  'Europe-primary · client-driven globally', 'Frascati Manual', 'Oslo Manual',
-  'IP Box regimes', 'Pillar 1 + Pillar 2 MNCs', 'Government innovation agencies',
-  'Revenue authorities', 'Multi-jurisdiction R&D incentives',
-];
 ---
 <section id="top" class="relative overflow-hidden border-b border-[var(--color-rule)]">
 
@@ -67,27 +62,6 @@ const tickerItems = [
     </div>
   </div>
 
-  <!-- Ticker strip -->
-  <div class="border-t border-[var(--color-rule)] reveal-up">
-    <div class="container-page py-5">
-      <div class="ticker font-mono text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-mute)]">
-        <div class="ticker-track">
-          {tickerItems.map((s) => (
-            <span class="inline-flex items-center gap-3 whitespace-nowrap">
-              <span class="text-[var(--color-signal)]" aria-hidden="true">◆</span>{s}
-            </span>
-          ))}
-        </div>
-        <div class="ticker-track" aria-hidden="true">
-          {tickerItems.map((s) => (
-            <span class="inline-flex items-center gap-3 whitespace-nowrap">
-              <span class="text-[var(--color-signal)]" aria-hidden="true">◆</span>{s}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <style>

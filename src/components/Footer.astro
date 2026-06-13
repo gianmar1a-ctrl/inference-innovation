@@ -7,12 +7,13 @@ const research = [
 ];
 const connect = [
   ['Contact', 'mailto:contact@inferenceinnovation.ai'],
-  ['LinkedIn', '#'],
+  ['LinkedIn', 'https://www.linkedin.com/'],
   ['Publications', '#'],
   ['Careers', '#'],
 ];
 ---
-<footer class="relative border-t border-[var(--color-rule)] pt-20 pb-10 lg:pb-32">
+<!-- pb-28 below lg clears the fixed Section Index pill -->
+<footer class="relative border-t border-[var(--color-rule)] pt-20 pb-28 lg:pb-32">
   <div class="container-page">
     <div class="rule-tick" aria-hidden="true"></div>
 
@@ -51,9 +52,18 @@ const connect = [
         <div class="eyebrow signal-eyebrow">Connect</div>
         <div class="mt-3 rule-tick" aria-hidden="true"></div>
         <ul class="mt-5 space-y-3 font-mono text-[0.82rem] uppercase tracking-[0.06em]">
-          {connect.map(([l, h]) => (
-            <li><a href={h} class="hover:text-[var(--color-signal)] hover:underline underline-offset-4 decoration-[var(--color-signal)]/40 transition-colors duration-200">{l}</a></li>
-          ))}
+          {connect.map(([l, h]) => {
+            const external = h.startsWith('http');
+            return (
+              <li>
+                <a
+                  href={h}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  class="hover:text-[var(--color-signal)] hover:underline underline-offset-4 decoration-[var(--color-signal)]/40 transition-colors duration-200"
+                >{l}</a>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
